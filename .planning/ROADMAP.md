@@ -10,7 +10,7 @@
 ## Phases
 
 - [x] **Phase 1: Dependency Foundation** - Upgrade all dependency versions; get workspace building cleanly before any logic touches (completed 2026-06-07)
-- [ ] **Phase 2: Async Runtime Introduction** - Stand up tokio runtime in both binaries; no call-site changes yet
+- [x] **Phase 2: Async Runtime Introduction** - Stand up tokio runtime in both binaries; no call-site changes yet (completed 2026-06-07)
 - [ ] **Phase 3: Download Pipeline + Crash Fixes** - Migrate all blocking HTTP to async DownloadPipeline; eliminate all panic sites; surface errors to UI
 - [ ] **Phase 4: Integrity Verification + Archive Hardening** - Wire SHA256 verification into all three download paths; path-traversal guards; proxy scheme validation
 - [ ] **Phase 5: Performance Caching + Allocation** - Cache hot-path computations; box oversized enum variants; reduce clone overhead where profiling justifies it
@@ -53,7 +53,7 @@ Plans:
   3. No `#[tokio::main]` macro appears anywhere in the entry-point files
   4. All existing editor behavior (LSP, terminal, plugin install, SSH remote) continues to work with the runtime present but unused
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 **Wave 1**
 
@@ -61,7 +61,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02-PLAN.md — Regression test: Handle::try_current() succeeds inside entered multi-thread context
+- [x] 02-02-PLAN.md — Regression test: Handle::try_current() succeeds inside entered multi-thread context
 
 ### Phase 3: Download Pipeline + Crash Fixes
 
@@ -119,7 +119,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
-| 2. Async Runtime Introduction | 1/2 | In Progress|  |
+| 2. Async Runtime Introduction | 2/2 | Complete   | 2026-06-07 |
 | 3. Download Pipeline + Crash Fixes | 0/? | Not started | - |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
 | 5. Performance Caching + Allocation | 0/? | Not started | - |
