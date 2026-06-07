@@ -31,7 +31,7 @@ pub(super) fn logging() -> (Handle<Targets>, Option<WorkerGuard>) {
         .with_target("lapce_core", LevelFilter::DEBUG)
         .with_default(LevelFilter::from_level(TraceLevel::INFO));
     let (log_file_filter, reload_handle) =
-        reload::Subscriber::new(log_file_filter_targets);
+        reload::Layer::new(log_file_filter_targets);
 
     let console_filter_targets = std::env::var("LAPCE_LOG")
         .unwrap_or_default()
