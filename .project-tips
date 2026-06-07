@@ -1,0 +1,10 @@
+# lapce v0.4.6 | rust workspace (hardening fork)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▸ Run:      cargo run --bin lapce
+▸ Build:    cargo build --workspace
+▸ Test:     cargo test --workspace
+▸ Fmt:      cargo fmt --all --check
+▸ Lint:     cargo clippy --profile ci
+▸ Release:  cargo build --profile release-lto
+▸ macOS:    make app   (or: make binary / make dmg)
+▸ MSRV:     1.87.0 · edition 2024 · Apache-2.0
