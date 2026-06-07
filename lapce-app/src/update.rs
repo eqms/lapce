@@ -231,3 +231,63 @@ pub fn cleanup() {
 pub fn cleanup() {
     // Nothing to do yet
 }
+
+#[cfg(test)]
+mod tests {
+    /// Regression test: zip path-traversal (zip-slip) attack is rejected.
+    ///
+    /// CVE-2025-29787: zip 0.6.x allowed ZipArchive::extract to write entries
+    /// with `../` paths outside the target directory. zip 2.4.0 fixes this by
+    /// rejecting traversal paths via `enclosed_name()` validation.
+    ///
+    /// This test constructs an in-memory ZIP containing a `../escape.txt` entry
+    /// and asserts that extracting it either returns Err or does not write the
+    /// file outside the target directory boundary.
+    #[test]
+    fn zip_slip_traversal_rejected() {
+        use std::io::{Cursor, Write};
+
+        use tempfile::TempDir;
+        use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
+
+        // Build an in-memory ZIP with a traversal entry name.
+        let mut buf = Cursor::new(Vec::new());
+        {
+            let mut zw = ZipWriter::new(&mut buf);
+            let opts = SimpleFileOptions::default()
+                .compression_method(zip::CompressionMethod::Stored);
+            zw.start_file("../escape.txt", opts)
+                .expect("write traversal entry");
+            zw.write_all(b"malicious content")
+                .expect("write entry bytes");
+            zw.finish().expect("finish zip");
+        }
+
+        let dir = TempDir::new().expect("tempdir creation");
+
+        // Reset cursor to beginning for extraction.
+        buf.set_position(0);
+        let mut archive =
+            ZipArchive::new(buf).expect("parse in-memory zip");
+        let result = archive.extract(dir.path());
+
+        // zip 2.4.0 must either:
+        //   (a) return Err (entry rejected outright), OR
+        //   (b) silently skip the traversal entry so the file is NOT written
+        //       outside the tempdir.
+        let escaped_path = dir.path().join("../escape.txt");
+        let written_outside = escaped_path.exists()
+            && escaped_path
+                .canonicalize()
+                .ok()
+                .map(|p| !p.starts_with(dir.path()))
+                .unwrap_or(false);
+
+        assert!(
+            result.is_err() || !written_outside,
+            "zip 2.4.0 must not extract '../escape.txt' outside the target \
+             directory (CVE-2025-29787). result={result:?}, \
+             written_outside={written_outside}"
+        );
+    }
+}

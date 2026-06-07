@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
 use anyhow::{Error, Result, anyhow};
+use interprocess::local_socket::{
+    GenericFilePath, Stream, ToFsName, prelude::*,
+};
 use lapce_core::directory::Directory;
 use lapce_rpc::{
     RpcMessage,
@@ -80,8 +83,8 @@ pub fn parse_file_line_column(path: &str) -> Result<PathObject, Error> {
 pub fn try_open_in_existing_process(paths: &[PathObject]) -> Result<()> {
     let local_socket = Directory::local_socket()
         .ok_or_else(|| anyhow!("can't get local socket folder"))?;
-    let mut socket =
-        interprocess::local_socket::LocalSocketStream::connect(local_socket)?;
+    let name = local_socket.as_os_str().to_fs_name::<GenericFilePath>()?;
+    let mut socket = Stream::connect(name)?;
 
     let msg: ProxyMessage = RpcMessage::Notification(ProxyNotification::OpenPaths {
         paths: paths.to_vec(),

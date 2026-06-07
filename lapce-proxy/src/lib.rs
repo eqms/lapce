@@ -17,6 +17,9 @@ use std::{
 use anyhow::{Result, anyhow};
 use clap::Parser;
 use dispatch::Dispatcher;
+use interprocess::local_socket::{
+    GenericFilePath, ListenerOptions, ToFsName, prelude::*,
+};
 use lapce_core::{directory::Directory, meta};
 use lapce_rpc::{
     RpcMessage,
@@ -162,12 +165,16 @@ pub fn register_lapce_path() -> Result<()> {
 fn listen_local_socket(proxy_rpc: ProxyRpcHandler) -> Result<()> {
     let local_socket = Directory::local_socket()
         .ok_or_else(|| anyhow!("can't get local socket folder"))?;
-    if let Err(err) = std::fs::remove_file(&local_socket) {
-        tracing::error!("{:?}", err);
+    // Remove stale socket file from a previously crashed process.
+    if local_socket.exists() {
+        if let Err(err) = std::fs::remove_file(&local_socket) {
+            tracing::error!("{:?}", err);
+        }
     }
-    let socket =
-        interprocess::local_socket::LocalSocketListener::bind(local_socket)?;
-    for stream in socket.incoming().flatten() {
+    let name = local_socket.as_os_str().to_fs_name::<GenericFilePath>()?;
+    let listener =
+        ListenerOptions::new().name(name).create_sync()?;
+    for stream in listener.incoming().filter_map(|r| r.ok()) {
         let mut reader = BufReader::new(stream);
         let proxy_rpc = proxy_rpc.clone();
         thread::spawn(move || -> Result<()> {
