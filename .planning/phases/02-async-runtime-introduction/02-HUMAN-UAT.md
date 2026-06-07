@@ -1,31 +1,31 @@
 ---
-status: partial
+status: passed
 phase: 02-async-runtime-introduction
 source: [02-VERIFICATION.md]
 started: 2026-06-07T18:55:00Z
-updated: 2026-06-07T18:55:00Z
+updated: 2026-06-07T19:00:00Z
 ---
 
 ## Current Test
 
-[awaiting human testing]
+[all tests passed — confirmed by maintainer]
 
 ## Tests
 
 ### 1. Editor launches without panic
 expected: Launch the `lapce` binary (or `cargo run --bin lapce`) and open a local workspace. The editor window appears; no panic dialog or crash in the terminal; Floem UI renders correctly; status bar shows the workspace name.
-result: [pending]
+result: passed — maintainer confirmed via smoke test
 
 ### 2. Behavioral parity with Phase 1 (ambient runtime present but unused)
 expected: Open a file and trigger LSP completions, open the integrated terminal, and attempt a plugin install. Completions appear, terminal opens, plugin install completes — no regressions from the ambient tokio runtime. (SSH remote optional if available.)
-result: [pending]
+result: passed — maintainer confirmed via smoke test
 
 ## Summary
 
 total: 2
-passed: 0
+passed: 2
 issues: 0
-pending: 2
+pending: 0
 skipped: 0
 blocked: 0
 
