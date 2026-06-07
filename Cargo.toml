@@ -10,6 +10,8 @@ default-run  = "lapce"
 [dependencies]
 lapce-app   = { path = "./lapce-app" }
 lapce-proxy = { path = "./lapce-proxy" }
+tokio       = { workspace = true }
+tracing     = { workspace = true }
 
 [[bin]]
 name = "lapce"
