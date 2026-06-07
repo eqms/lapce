@@ -44,7 +44,7 @@ hashbrown         = { version = "0.14.5", features = ["serde"] }
 im                = { version = "15.0.0", features = ["serde"] }
 include_dir       = { version = "0.7" }
 indexmap          = { version = "2.0", features = ["serde"] }
-interprocess      = { version = "1.2.1" }
+interprocess      = { version = "2.4.2" }
 itertools         = { version = "0.12.1" }
 notify            = { version = "5.2.0", features = ["serde"] }
 once_cell         = { version = "1.19" }
@@ -53,7 +53,9 @@ rayon             = { version = "1.10.0" }
 regex             = { version = "1.10.5" }
 remain            = { version = "0.2" }
 semver            = { version = "1.0" }
-reqwest           = { version = "0.11", features = ["blocking", "json", "socks"] }
+reqwest           = { version = "0.12.28", features = ["blocking", "json", "socks"] }
+sha2              = { version = "0.10.8" }
+tokio             = { version = "1.52.3", features = ["rt-multi-thread", "macros", "sync", "time", "fs"] }
 serde             = { version = "1.0" }
 serde_json        = { version = "1.0" }
 smallvec          = { version = "1.15.1" }
@@ -62,7 +64,7 @@ strum_macros      = { version = "0.27.1" }
 tar               = { version = "0.4" }
 tempfile          = { version = "3.10.1" }
 thiserror         = { version = "1.0" }
-toml              = { version = "*" }
+toml              = { version = "0.8" }
 toml_edit         = { version = "0.20.2", features = ["serde"] }
 url               = { version = "2.5.0" }
 zstd              = { version = "0.11.2" }                                                                         # follow same version wasmtime-cache in lockfile
@@ -77,15 +79,11 @@ lapce-rpc   = { path = "./lapce-rpc" }
 lapce-proxy = { path = "./lapce-proxy" }
 
 [workspace.dependencies.floem]
-# path = "../floem"
-git = "https://github.com/lapce/floem"
-rev = "31fa8f444c37f4c314f47d88c23ffdbc25f2ab53"
-features = ["editor", "serde", "default-image-formats", "rfd-async-std"]
+version  = "0.2.0"
+features = ["editor", "serde", "default-image-formats", "rfd-tokio"]
 
 [workspace.dependencies.floem-editor-core]
-# path = "../floem/editor-core/"
-git = "https://github.com/lapce/floem"
-rev = "31fa8f444c37f4c314f47d88c23ffdbc25f2ab53"
+version  = "0.2.0"
 features = ["serde"]
 
 [patch.crates-io]
@@ -99,28 +97,20 @@ dpi = { git = "https://github.com/rust-windowing/winit", rev = "ee245c569d65fdea
 
 
 [workspace.dependencies.tracing]
-git     = "https://github.com/tokio-rs/tracing"
-rev     = "908cc432a5994f6e17c8f36e13c217dc40085704"
-package = "tracing"
+version = "0.1.44"
 
 [workspace.dependencies.tracing-log]
-git     = "https://github.com/tokio-rs/tracing"
-rev     = "908cc432a5994f6e17c8f36e13c217dc40085704"
-package = "tracing-log"
+version = "0.2.0"
 
 [workspace.dependencies.tracing-subscriber]
-git     = "https://github.com/tokio-rs/tracing"
-rev     = "908cc432a5994f6e17c8f36e13c217dc40085704"
-package = "tracing-subscriber"
+version  = "0.3.23"
+features = ["fmt", "env-filter", "registry", "reload", "tracing-log"]
 
 [workspace.dependencies.tracing-appender]
-git     = "https://github.com/tokio-rs/tracing"
-rev     = "908cc432a5994f6e17c8f36e13c217dc40085704"
-package = "tracing-appender"
+version = "0.2.5"
 
 [workspace.dependencies.alacritty_terminal]
-git = "https://github.com/alacritty/alacritty"
-rev = "cacdb5bb3b72bad2c729227537979d95af75978f"
+version = "0.24.1"
 
 [workspace.dependencies.windows-sys]
 version  = "0"
