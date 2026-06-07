@@ -1,12 +1,16 @@
 use lapce_core::directory::Directory;
 use tracing::level_filters::LevelFilter;
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{filter::Targets, reload::Handle};
+use tracing_subscriber::{
+    Registry,
+    filter::Targets,
+    reload::Handle,
+};
 
 use crate::tracing::*;
 
 #[inline(always)]
-pub(super) fn logging() -> (Handle<Targets>, Option<WorkerGuard>) {
+pub(super) fn logging() -> (Handle<Targets, Registry>, Option<WorkerGuard>) {
     use tracing_subscriber::{filter, fmt, prelude::*, reload};
 
     let (log_file, guard) = match Directory::logs_directory()
@@ -40,14 +44,14 @@ pub(super) fn logging() -> (Handle<Targets>, Option<WorkerGuard>) {
 
     let registry = tracing_subscriber::registry();
     if let Some(log_file) = log_file {
-        let file_layer = tracing_subscriber::fmt::subscriber()
+        let file_layer = fmt::layer()
             .with_ansi(false)
             .with_writer(log_file)
             .with_filter(log_file_filter);
         registry
             .with(file_layer)
             .with(
-                fmt::Subscriber::default()
+                fmt::Layer::default()
                     .with_line_number(true)
                     .with_target(true)
                     .with_thread_names(true)
@@ -56,7 +60,10 @@ pub(super) fn logging() -> (Handle<Targets>, Option<WorkerGuard>) {
             .init();
     } else {
         registry
-            .with(fmt::Subscriber::default().with_filter(console_filter_targets))
+            .with(
+                fmt::Layer::default()
+                    .with_filter(console_filter_targets),
+            )
             .init();
     };
 

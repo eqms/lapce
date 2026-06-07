@@ -61,10 +61,13 @@ use lapce_rpc::{
     core::{CoreMessage, CoreNotification},
     file::PathObject,
 };
+use interprocess::local_socket::{
+    GenericFilePath, ListenerOptions, Stream, ToFsName, prelude::*,
+};
 use lsp_types::{CompletionItemKind, MessageType, ShowMessageParams};
 use notify::Watcher;
 use serde::{Deserialize, Serialize};
-use tracing_subscriber::{filter::Targets, reload::Handle};
+use tracing_subscriber::{Registry, filter::Targets, reload::Handle};
 
 use crate::{
     about, alert,
@@ -167,7 +170,7 @@ pub struct AppData {
     /// The latest release information
     pub latest_release: RwSignal<Arc<Option<ReleaseInfo>>>,
     pub watcher: Arc<notify::RecommendedWatcher>,
-    pub tracing_handle: Handle<Targets>,
+    pub tracing_handle: Handle<Targets, Registry>,
     pub config: RwSignal<Arc<LapceConfig>>,
     /// Paths to extra plugins to load
     pub plugin_paths: Arc<Vec<PathBuf>>,
@@ -4092,16 +4095,16 @@ pub fn load_shell_env() {
         })
 }
 
-pub fn get_socket() -> Result<interprocess::local_socket::LocalSocketStream> {
+pub fn get_socket() -> Result<Stream> {
     let local_socket = Directory::local_socket()
         .ok_or_else(|| anyhow!("can't get local socket folder"))?;
-    let socket =
-        interprocess::local_socket::LocalSocketStream::connect(local_socket)?;
+    let name = local_socket.as_os_str().to_fs_name::<GenericFilePath>()?;
+    let socket = Stream::connect(name)?;
     Ok(socket)
 }
 
 pub fn try_open_in_existing_process(
-    mut socket: interprocess::local_socket::LocalSocketStream,
+    mut socket: Stream,
     paths: &[PathObject],
 ) -> Result<()> {
     let msg: CoreMessage = RpcMessage::Notification(CoreNotification::OpenPaths {
@@ -4131,15 +4134,17 @@ pub fn try_open_in_existing_process(
 fn listen_local_socket(tx: SyncSender<CoreNotification>) -> Result<()> {
     let local_socket = Directory::local_socket()
         .ok_or_else(|| anyhow!("can't get local socket folder"))?;
+    // Remove stale socket file left by a previously crashed process.
     if local_socket.exists() {
         if let Err(err) = std::fs::remove_file(&local_socket) {
             tracing::error!("{:?}", err);
         }
     }
-    let socket =
-        interprocess::local_socket::LocalSocketListener::bind(local_socket)?;
+    let name = local_socket.as_os_str().to_fs_name::<GenericFilePath>()?;
+    let listener =
+        ListenerOptions::new().name(name).create_sync()?;
 
-    for stream in socket.incoming().flatten() {
+    for stream in listener.incoming().filter_map(|r| r.ok()) {
         let tx = tx.clone();
         std::thread::spawn(move || -> Result<()> {
             let mut reader = BufReader::new(stream);
@@ -4318,4 +4323,80 @@ fn tab_secondary_click(
             });
         }));
     show_context_menu(menu, None);
+}
+
+#[cfg(test)]
+mod tests {
+    /// Regression test: single-instance IPC roundtrip using interprocess 2.x API.
+    ///
+    /// Verifies that `ListenerOptions::new().name(name).create_sync()` and
+    /// `Stream::connect(name)` can exchange messages — the core behavior relied on
+    /// by Lapce's single-instance detection mechanism.
+    ///
+    /// Windows named-pipe IPC in CI is unreliable; Windows coverage for single-instance
+    /// IPC is verified manually in Phase 1. This test is Unix-only by design.
+    #[cfg(unix)]
+    #[test]
+    fn single_instance_ipc_roundtrip() {
+        use std::{
+            io::{Read, Write},
+            sync::mpsc,
+            thread,
+        };
+
+        use interprocess::local_socket::{
+            GenericFilePath, ListenerOptions, Stream, ToFsName, prelude::*,
+        };
+        use tempfile::TempDir;
+
+        let dir = TempDir::new().expect("tempdir creation");
+        let socket_path = dir.path().join("test.sock");
+        let name = socket_path
+            .as_os_str()
+            .to_fs_name::<GenericFilePath>()
+            .expect("valid fs name");
+
+        // Channel to signal when the listener has received data.
+        let (tx, rx) = mpsc::channel::<Vec<u8>>();
+
+        let listener = ListenerOptions::new()
+            .name(name.clone())
+            .create_sync()
+            .expect("listener creation");
+
+        let server = thread::spawn(move || {
+            // Accept exactly one connection.
+            let mut stream = listener
+                .incoming()
+                .filter_map(|r| r.ok())
+                .next()
+                .expect("server: accept");
+            let mut buf = [0u8; 64];
+            let n = stream.read(&mut buf).expect("server: read");
+            let received = buf[..n].to_vec();
+            stream.write_all(b"received").expect("server: write");
+            stream.flush().expect("server: flush");
+            tx.send(received).expect("server: send");
+        });
+
+        // Connect as client and send a message.
+        let mut client = Stream::connect(name).expect("client: connect");
+        client.write_all(b"hello").expect("client: write");
+        client.flush().expect("client: flush");
+
+        // Read the echo back from the server.
+        let mut reply = [0u8; 64];
+        let n = client.read(&mut reply).expect("client: read reply");
+
+        // Assert the roundtrip completed correctly.
+        assert_eq!(&reply[..n], b"received", "expected echo 'received'");
+
+        // Assert the server received our message.
+        let server_received =
+            rx.recv_timeout(std::time::Duration::from_secs(5))
+                .expect("server received message within timeout");
+        assert_eq!(server_received, b"hello", "server should receive 'hello'");
+
+        server.join().expect("server thread did not panic");
+    }
 }
