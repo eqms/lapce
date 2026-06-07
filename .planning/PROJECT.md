@@ -34,6 +34,13 @@ The editor must never panic on normal user actions, and every binary it download
 - ✓ Workspace builds cleanly (`cargo build --workspace` exit 0); zip-slip path-traversal guard added with `zip_slip_traversal_rejected` regression test
 - ⏳ Runtime behaviour parity (LSP/DAP/plugins/terminal/SSH) pending human verification — tracked in `01-HUMAN-UAT.md`
 
+**Async Runtime Introduction** — Validated in Phase 2: Async Runtime Introduction (2026-06-07)
+- ✓ A tokio multi-thread runtime is ambient in both binaries via the named-local `_rt` + `_guard = _rt.enter()` pattern, wrapping `app::launch()` (GUI) and `mainloop()` (proxy) for the full process lifetime (RT-01)
+- ✓ Runtime built with `Builder::new_multi_thread().enable_all()`, named worker threads (`lapce-app-worker` / `lapce-proxy-worker`), tokio-default worker count; build failure fails closed (`eprintln!` + `process::exit(1)`, no panic)
+- ✓ No `#[tokio::main]` in either entry point; no `Handle` stored in shared state — runtime is purely ambient, no call sites changed (Phase 3 will migrate blocking I/O onto it)
+- ✓ Regression test `handle_current_succeeds_inside_entered_context` (`lapce-app/src/runtime_tests.rs`); editor launch + behaviour parity confirmed by maintainer smoke test
+- ⓘ Follow-up (non-blocking): the regression test validates the tokio contract but does not structurally guard the binary's `rt.enter()` — code review WR-01 suggests a `debug_assert!(Handle::try_current().is_ok())` in `app::launch()` for a true entry-point guard
+
 ### Active
 
 <!-- This milestone: resolve the four engineering-quality concern clusters. Hypotheses until shipped. -->
@@ -115,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-07 after Phase 1 (Dependency Foundation) completion*
+*Last updated: 2026-06-07 after Phase 2 (Async Runtime Introduction) completion*
