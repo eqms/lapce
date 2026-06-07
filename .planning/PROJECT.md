@@ -23,6 +23,17 @@ The editor must never panic on normal user actions, and every binary it download
 - ✓ Remote SSH workspace via downloadable proxy binary (`lapce-app/src/proxy/remote.rs`) — existing
 - ✓ File explorer, command palette, themes, self-update (`lapce-app/src/file_explorer/`, `palette.rs`, `update.rs`) — existing
 
+**Dependency Foundation** — Validated in Phase 1: Dependency Foundation (2026-06-07)
+- ✓ `reqwest` upgraded 0.11 → 0.12.28 for lapce-controlled crates (DEPS-01); `reqwest 0.11` remains only as a transitive dep of the external `wasi-experimental-http-wasmtime` git dep
+- ✓ `tokio` 1.52.3 added as workspace dependency (DEPS-02)
+- ✓ `zip` upgraded 0.6 → 2.4.2, closing CVE-2025-29787 — `cargo tree -i zip` shows 2.x only (DEPS-03)
+- ✓ `interprocess` upgraded 1.2.1 → 2.4.2 with rewritten IPC call sites (`app.rs`, `lapce-proxy/src/lib.rs`, `cli.rs`); single-instance detection verified via `single_instance_ipc_roundtrip` test (DEPS-04)
+- ✓ `toml` wildcard `"*"` pinned to `"0.8"` (DEPS-05)
+- ✓ `tracing` family and `alacritty_terminal` moved from git revs to versioned crates.io releases (DEPS-06); `floem` retained on git rev `31fa8f4` per documented fallback (crates.io 0.2.0 API-incompatible)
+- ✓ `sha2` promoted to workspace dependency (DEPS-07)
+- ✓ Workspace builds cleanly (`cargo build --workspace` exit 0); zip-slip path-traversal guard added with `zip_slip_traversal_rejected` regression test
+- ⏳ Runtime behaviour parity (LSP/DAP/plugins/terminal/SSH) pending human verification — tracked in `01-HUMAN-UAT.md`
+
 ### Active
 
 <!-- This milestone: resolve the four engineering-quality concern clusters. Hypotheses until shipped. -->
@@ -47,12 +58,6 @@ The editor must never panic on normal user actions, and every binary it download
 - [ ] Parsed font families cached, invalidated only on config change (`doc.rs:1951`)
 - [ ] Granular per-line cache invalidation for completion/diagnostic updates (`doc.rs:1139,1146,1430`)
 - [ ] Clone reduction in render hot paths via `Arc`/structural sharing where profiling justifies it (`doc.rs`, `editor.rs`, `window_tab.rs`)
-
-**Dependency Upgrades**
-- [ ] `reqwest` upgraded 0.11 → 0.12 (`Cargo.toml`)
-- [ ] `interprocess` upgraded 1.2.1 → 2.x with updated socket call sites (`app.rs`)
-- [ ] `toml` wildcard `"*"` pinned to a specific major version (`Cargo.toml:65`)
-- [ ] Git-SHA-pinned deps (`floem`, `tracing`, `alacritty_terminal`, `psp-types`) moved to tagged releases where available (`Cargo.toml`)
 
 **Testing (cross-cutting)**
 - [ ] Each crash and security fix ships with a regression test that would have caught the original defect
@@ -110,4 +115,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-07 after initialization*
+*Last updated: 2026-06-07 after Phase 1 (Dependency Foundation) completion*
