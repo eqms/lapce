@@ -676,21 +676,32 @@ let (log_file_filter, reload_handle) = reload::Layer::new(log_file_filter_target
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does floem crates.io 0.2.0 include the post-tag commits lapce depends on?**
    - What we know: git rev `31fa8f4` resolves to version `0.2.0`; crates.io also has `0.2.0`
    - What's unclear: whether the git rev was published as the crates.io tag or has additional commits
    - Recommendation: Attempt crates.io first; fallback to git on compile failure
+   - **RESOLVED:** Attempt crates.io 0.2.0 first; on compile failure fall back to git rev
+     `31fa8f444c37f4c314f47d88c23ffdbc25f2ab53` with the `rfd-tokio` feature. Fallback
+     instruction is already embedded in plan 01-01 Task 1 step 6.
 
 2. **Does alacritty_terminal 0.24.1 crates.io match the git rev?**
    - What we know: git rev is "0.24.1-dev"; crates.io has "0.24.1"
    - Recommendation: Switch to crates.io; rollback if compile errors
+   - **RESOLVED:** Attempt crates.io 0.24.1 first; on compile failure fall back to the
+     pinned git rev `cacdb5bb3b72bad2c729227537979d95af75978f`. Fallback instruction is
+     already embedded in plan 01-01 Task 1 step 8.
 
 3. **Is `GenericFilePath` or a different type the correct namespace for path-based sockets in interprocess 2.x?**
    - What we know: `GenericNamespaced` is for named sockets; a separate type handles FS paths
    - What's unclear: exact type name in 2.4.2 (may be `GenericFilePath` or accessed differently)
    - Recommendation: Consult `docs.rs/interprocess/2.4.2` at implementation time; compile errors will guide to the correct type
+   - **RESOLVED:** [ASSUMED] type name `GenericFilePath`; verified at compile time. If not
+     found, consult docs.rs/interprocess/2.4.2/interprocess/local_socket/ — likely
+     alternatives are `interprocess::local_socket::GenericFilePath` or the `ToFsName`
+     trait path. Concrete usage: `path.to_fs_name::<GenericFilePath>()` with `prelude::*`
+     in scope. See also plan 01-02 Task 2 NOTE on GenericFilePath.
 
 ---
 

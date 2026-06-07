@@ -1,3 +1,17 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: executing
+last_updated: "2026-06-07T09:26:25.597Z"
+progress:
+  total_phases: 5
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 0
+  percent: 0
+---
+
 # Project State: Lapce Hardening Fork
 
 **Last updated:** 2026-06-07
@@ -17,13 +31,14 @@
 
 **Active Phase:** None (roadmap just created; not yet started)
 **Active Plan:** None
-**Status:** Ready to begin Phase 1
+**Status:** Ready to execute
 
 ```
 Progress: [          ] 0% — 0 of 5 phases complete
 ```
 
 **Phase summary:**
+
 - [ ] Phase 1: Dependency Foundation
 - [ ] Phase 2: Async Runtime Introduction
 - [ ] Phase 3: Download Pipeline + Crash Fixes
