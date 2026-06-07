@@ -3104,6 +3104,8 @@ version = "0.4.6"
 dependencies = [
  "lapce-app",
  "lapce-proxy",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
