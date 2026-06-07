@@ -53,11 +53,11 @@ Plans:
   3. No `#[tokio::main]` macro appears anywhere in the entry-point files
   4. All existing editor behavior (LSP, terminal, plugin install, SSH remote) continues to work with the runtime present but unused
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Cargo dep additions (lapce-app + lapce-proxy) and runtime construction in both bin/*.rs entry points
+- [x] 02-01-PLAN.md — Cargo dep additions (lapce-app + lapce-proxy) and runtime construction in both bin/*.rs entry points
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -119,7 +119,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
-| 2. Async Runtime Introduction | 0/2 | Planned    | - |
+| 2. Async Runtime Introduction | 1/2 | In Progress|  |
 | 3. Download Pipeline + Crash Fixes | 0/? | Not started | - |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
 | 5. Performance Caching + Allocation | 0/? | Not started | - |
