@@ -28,7 +28,10 @@
   2. The editor launches and all existing behavior (LSP, DAP, plugins, terminal, SSH remote) works identically to before
   3. No CVE-2025-29787 vulnerable zip version remains in the dependency tree (`cargo tree -i zip` shows 2.x only)
   4. IPC single-instance detection still prevents duplicate app launches after interprocess 2.x migration
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Cargo.toml version pins (reqwest, tokio, zip, toml, sha2, tracing, alacritty, floem)
+- [ ] 01-02-PLAN.md — Code-site fixes (tracing rename, interprocess 2.x IPC rewrite, regression tests)
 
 ### Phase 2: Async Runtime Introduction
 **Goal**: A tokio multi-thread runtime is ambient in both binaries; the editor behaves identically to Phase 1
@@ -87,7 +90,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Dependency Foundation | 0/? | Not started | - |
+| 1. Dependency Foundation | 0/2 | Planned | - |
 | 2. Async Runtime Introduction | 0/? | Not started | - |
 | 3. Download Pipeline + Crash Fixes | 0/? | Not started | - |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
@@ -130,4 +133,4 @@
 
 ---
 *Created: 2026-06-07*
-*Next: `/gsd-plan-phase 1`*
+*Updated: 2026-06-07 — Phase 1 plans created (01-01, 01-02)*
