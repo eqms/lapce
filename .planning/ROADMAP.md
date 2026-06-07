@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Dependency Foundation** - Upgrade all dependency versions; get workspace building cleanly before any logic touches
+- [x] **Phase 1: Dependency Foundation** - Upgrade all dependency versions; get workspace building cleanly before any logic touches (completed 2026-06-07)
 - [ ] **Phase 2: Async Runtime Introduction** - Stand up tokio runtime in both binaries; no call-site changes yet
 - [ ] **Phase 3: Download Pipeline + Crash Fixes** - Migrate all blocking HTTP to async DownloadPipeline; eliminate all panic sites; surface errors to UI
 - [ ] **Phase 4: Integrity Verification + Archive Hardening** - Wire SHA256 verification into all three download paths; path-traversal guards; proxy scheme validation
@@ -31,15 +31,15 @@
   3. No CVE-2025-29787 vulnerable zip version remains in the dependency tree (`cargo tree -i zip` shows 2.x only)
   4. IPC single-instance detection still prevents duplicate app launches after interprocess 2.x migration
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Cargo.toml version pins (reqwest, tokio, zip, toml, sha2, tracing, alacritty, floem)
+- [x] 01-01-PLAN.md — Cargo.toml version pins (reqwest, tokio, zip, toml, sha2, tracing, alacritty, floem)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Code-site fixes (tracing rename, interprocess 2.x IPC rewrite, regression tests)
+- [x] 01-02-PLAN.md — Code-site fixes (tracing rename, interprocess 2.x IPC rewrite, regression tests)
 
 ### Phase 2: Async Runtime Introduction
 
@@ -110,7 +110,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Dependency Foundation | 0/2 | Planned | - |
+| 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
 | 2. Async Runtime Introduction | 0/? | Not started | - |
 | 3. Download Pipeline + Crash Fixes | 0/? | Not started | - |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
