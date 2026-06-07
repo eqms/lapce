@@ -25,9 +25,7 @@ mod runtime_tests {
 
         // `Handle::try_current()` must succeed while the guard is alive.
         let handle = tokio::runtime::Handle::try_current()
-            .expect(
-                "handle must be present inside entered context",
-            );
+            .expect("handle must be present inside entered context");
 
         // The production pattern uses new_multi_thread(), so the flavor
         // must be MultiThread, not CurrentThread.
