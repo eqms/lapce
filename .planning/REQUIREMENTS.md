@@ -84,22 +84,40 @@ Explicitly excluded for this milestone. Documented to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation. Each requirement maps to exactly one phase.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEPS-01..07 | TBD | Pending |
-| RT-01..03 | TBD | Pending |
-| CRASH-01..05 | TBD | Pending |
-| SEC-01..05 | TBD | Pending |
-| PERF-01..05 | TBD | Pending |
-| TEST-01 | TBD | Pending |
+| DEPS-01 | Phase 1 | Pending |
+| DEPS-02 | Phase 1 | Pending |
+| DEPS-03 | Phase 1 | Pending |
+| DEPS-04 | Phase 1 | Pending |
+| DEPS-05 | Phase 1 | Pending |
+| DEPS-06 | Phase 1 | Pending |
+| DEPS-07 | Phase 1 | Pending |
+| RT-01 | Phase 2 | Pending |
+| RT-02 | Phase 3 | Pending |
+| RT-03 | Phase 3 | Pending |
+| CRASH-01 | Phase 3 | Pending |
+| CRASH-02 | Phase 3 | Pending |
+| CRASH-03 | Phase 3 | Pending |
+| CRASH-04 | Phase 3 | Pending |
+| CRASH-05 | Phase 3 | Pending |
+| SEC-01 | Phase 4 | Pending |
+| SEC-02 | Phase 4 | Pending |
+| SEC-03 | Phase 4 | Pending |
+| SEC-04 | Phase 4 | Pending |
+| SEC-05 | Phase 4 | Pending |
+| PERF-01 | Phase 5 | Pending |
+| PERF-02 | Phase 5 | Pending |
+| PERF-03 | Phase 5 | Pending |
+| PERF-04 | Phase 5 | Pending |
+| PERF-05 | Phase 5 | Pending |
+| TEST-01 | Phases 3+4 | Pending (folded into crash/security phases) |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0 (roadmapper to populate)
-- Unmapped: 26 ⚠️ (resolved at roadmap creation)
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-06-07*
-*Last updated: 2026-06-07 after initial definition*
+*Last updated: 2026-06-07 after roadmap creation*
