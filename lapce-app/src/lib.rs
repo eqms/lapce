@@ -46,5 +46,8 @@ pub mod window;
 pub mod window_tab;
 pub mod workspace;
 
+#[cfg(test)]
+mod runtime_tests;
+
 #[cfg(windows)]
 extern crate windows_sys as windows;
