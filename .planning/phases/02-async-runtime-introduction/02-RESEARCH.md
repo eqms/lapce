@@ -420,17 +420,15 @@ mod runtime_tests {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Shared helper vs. inline duplication**
+1. **Shared helper vs. inline duplication** — RESOLVED
    - What we know: The runtime build pattern is ~10 lines, identical except for `thread_name`. Two binaries.
-   - What's unclear: Whether a shared `fn build_runtime(thread_name: &str) -> tokio::runtime::Runtime` helper in `lapce-core` or an inline copy is preferred.
-   - Recommendation: Claude's discretion (per CONTEXT.md). A shared helper in `lapce-app/src/` (not `lapce-core` — keep lapce-core runtime-free per architecture constraint) reduces duplication. Inlining is also acceptable and avoids any import awkwardness.
+   - RESOLVED: Claude's discretion per CONTEXT.md. A shared `fn build_runtime(thread_name: &str)` helper reduces duplication; inlining in each `main()` is equally acceptable. If a helper is used, place it in `lapce-app/src/` (NOT `lapce-core` — keep lapce-core runtime-free per the architecture constraint). The executor may choose either; both satisfy D-01…D-06.
 
-2. **Exact placement within main() relative to existing code**
+2. **Exact placement within main() relative to existing code** — RESOLVED
    - What we know: `lapce-app/src/bin/lapce.rs` is currently 7 lines (`#![cfg_attr]`, use, `pub fn main() { app::launch(); }`). lapce-proxy is 5 lines.
-   - What's unclear: Whether any code should precede the runtime construction (e.g., CLI pre-parsing, signal handler setup).
-   - Recommendation: Runtime construction is the first action in `main()`. No code from `launch()`/`mainloop()` needs to move out — they remain unchanged.
+   - RESOLVED: Runtime construction is the FIRST action in each `main()`, and the `rt.enter()` guard must remain in scope across the entire `launch()` / `mainloop()` call. No code from `launch()`/`mainloop()` moves out — those functions stay unchanged (honors D-01).
 
 ---
 
