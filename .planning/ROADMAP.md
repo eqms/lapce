@@ -77,7 +77,17 @@ Plans:
   5. A malformed or corrupted zstd plugin archive surfaces an error notification instead of crashing the editor
   6. Each of the five crash/stability fixes ships with a regression test that asserts the error reaches the UI as a notification (not merely that no panic occurs)
 
-**Plans**: TBD
+**Plans:** 4 plans
+
+**Wave 1** *(can execute in parallel)*
+
+- [ ] 03-01-PLAN.md — Async download pipeline: get_url_async core, DownloadPipeline wrapper, drop blocking feature, migrate all 11 call sites (RT-02, RT-03)
+- [ ] 03-02-PLAN.md — CRASH-02 guard + CRASH-05 git error surfacing in dispatch.rs, regression tests (CRASH-02, CRASH-05, TEST-01)
+
+**Wave 2** *(blocked on 03-01 completion)*
+
+- [ ] 03-03-PLAN.md — CRASH-03 DAP stdio fix + CRASH-04 zstd panic fix + regression tests (CRASH-03, CRASH-04, TEST-01)
+- [ ] 03-04-PLAN.md — CRASH-01 regression tests + D-10 load-time warn for keymap conditions (CRASH-01, TEST-01)
 
 ### Phase 4: Integrity Verification + Archive Hardening
 
@@ -120,7 +130,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
 | 2. Async Runtime Introduction | 2/2 | Complete   | 2026-06-07 |
-| 3. Download Pipeline + Crash Fixes | 0/? | Not started | - |
+| 3. Download Pipeline + Crash Fixes | 0/4 | Not started | - |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
 | 5. Performance Caching + Allocation | 0/? | Not started | - |
 
@@ -162,3 +172,4 @@ Plans:
 ---
 *Created: 2026-06-07*
 *Updated: 2026-06-07 — Phase 2 plans created (02-01, 02-02)*
+*Updated: 2026-06-08 — Phase 3 plans created (03-01 through 03-04)*
