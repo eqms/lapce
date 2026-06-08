@@ -101,8 +101,14 @@ impl DapClient {
             &self.dap_server.args,
             self.dap_server.cwd.as_ref(),
         )?;
-        let stdin = process.stdin.take().unwrap();
-        let stdout = process.stdout.take().unwrap();
+        let stdin = process
+            .stdin
+            .take()
+            .ok_or_else(|| anyhow!("failed to capture DAP stdin"))?;
+        let stdout = process
+            .stdout
+            .take()
+            .ok_or_else(|| anyhow!("failed to capture DAP stdout"))?;
         // let stderr = process.stderr.take().unwrap();
 
         let dap_rpc = self.dap_rpc.clone();

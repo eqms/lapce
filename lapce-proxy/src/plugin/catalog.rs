@@ -623,6 +623,13 @@ impl PluginCatalog {
                             }
                             Err(err) => {
                                 tracing::error!("{:?}", err);
+                                plugin_rpc.core_rpc.show_message(
+                                    "DAP start failure".to_owned(),
+                                    ShowMessageParams {
+                                        typ: MessageType::ERROR,
+                                        message: err.to_string(),
+                                    },
+                                );
                             }
                         }
                     });
