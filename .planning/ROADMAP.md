@@ -91,20 +91,19 @@ Plans:
 
 ### Phase 4: Integrity Verification + Archive Hardening
 
-**Goal**: Every binary the editor downloads (plugin, self-update, remote proxy) is SHA256-verified before use; path-traversal attacks in archives are rejected; proxy env is validated
+**Goal**: The remote proxy binary is SHA256-verified before execution on stable releases; plugin archives reject path-traversal and symlink-escape entries; the `https_proxy` env is scheme-validated. A reusable verify-before-write integrity primitive is built; plugin (SEC-01) and self-update (SEC-02) verification is deferred to v2 pending a trusted hash source.
 **Depends on**: Phase 3
-**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, TEST-01 (security fix regression tests)
+**Requirements**: SEC-03, SEC-04, SEC-05, TEST-01 (live this phase). SEC-01, SEC-02 deferred to v2 — no published SHA256 source exists upstream (see 04-CONTEXT.md).
 
-> **OPEN QUESTION (note; do not block on it):** Does `plugins.lapce.dev` return a `sha256` or `checksum` field in its API response? Confirm with `curl https://plugins.lapce.dev/api/v1/plugins/<id>/versions` before planning this phase in detail. If no hash field exists, options are: (a) use a `.sha256` companion URL, (b) request registry maintainer to add the field, or (c) scope SEC-01 to self-update + proxy binary only and treat plugin integrity as v2.
+> **RESOLVED (2026-06-08):** Neither `plugins.lapce.dev` (no `sha256`/`checksum` field) nor `github.com/lapce/lapce` releases (no `SHA256SUMS`/`.sha256` asset) publish an expected hash. Per discussion (option c), SEC-01 plugin + SEC-02 self-update integrity → v2; only proxy-binary verification (SEC-03, stable) goes live, alongside SEC-04 and SEC-05.
 
 **Success Criteria** (what must be TRUE):
 
-  1. Installing a plugin whose archive has been tampered with (hash mismatch) produces a user-visible error and no files are written to disk
-  2. Applying a self-update archive with a wrong hash fails closed: error is shown, the existing binary is unchanged
-  3. Connecting to a remote SSH host where the proxy binary hash does not match fails before execution; the binary is not run
-  4. A zip plugin archive containing a path-traversal entry (e.g. `../../etc/evil`) is rejected during extraction with no files written outside the plugin directory
-  5. Setting `https_proxy` to a value with an invalid scheme (e.g. `ftp://proxy`) is rejected with a logged error; the editor does not pass the invalid proxy to reqwest
-  6. Each of the five security fixes ships with a regression test covering the fail-closed path
+  1. Connecting to a remote SSH host on a stable release where the proxy binary hash does not match the build-time pinned value fails before execution; the binary is not written or run (nightly is a documented unverified exception)
+  2. A plugin tar archive (zstd or gz) containing a path-traversal (`../`), absolute-path, or symlink/hardlink-escape entry is rejected before any extraction, with no files written outside the plugin directory
+  3. Setting `https_proxy` to a disallowed scheme (anything other than http/https/socks5/socks5h, e.g. `ftp://proxy`) causes the request to fail with a logged error; the invalid proxy is never passed to reqwest
+  4. A reusable verify-before-write integrity primitive (download → SHA256 in memory → compare → then write) exists and is unit-tested; the SEC-01 and SEC-02 call sites are structured to adopt it but are not gated this milestone
+  5. Each security fix shipped this phase (proxy verification, archive guard, proxy-scheme validation) ships with a regression test covering the fail-closed path
 
 **Plans**: TBD
 
