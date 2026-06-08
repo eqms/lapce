@@ -77,7 +77,7 @@ Plans:
   5. A malformed or corrupted zstd plugin archive surfaces an error notification instead of crashing the editor
   6. Each of the five crash/stability fixes ships with a regression test that asserts the error reaches the UI as a notification (not merely that no panic occurs)
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 **Wave 1** *(can execute in parallel)*
 
@@ -86,7 +86,7 @@ Plans:
 
 **Wave 2** *(blocked on 03-01 completion)*
 
-- [ ] 03-03-PLAN.md — CRASH-03 DAP stdio fix + CRASH-04 zstd panic fix + regression tests (CRASH-03, CRASH-04, TEST-01)
+- [x] 03-03-PLAN.md — CRASH-03 DAP stdio fix + CRASH-04 zstd panic fix + regression tests (CRASH-03, CRASH-04, TEST-01)
 - [ ] 03-04-PLAN.md — CRASH-01 regression tests + D-10 load-time warn for keymap conditions (CRASH-01, TEST-01)
 
 ### Phase 4: Integrity Verification + Archive Hardening
@@ -130,7 +130,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
 | 2. Async Runtime Introduction | 2/2 | Complete   | 2026-06-07 |
-| 3. Download Pipeline + Crash Fixes | 2/4 | In Progress|  |
+| 3. Download Pipeline + Crash Fixes | 3/4 | In Progress|  |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
 | 5. Performance Caching + Allocation | 0/? | Not started | - |
 

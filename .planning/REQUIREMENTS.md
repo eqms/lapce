@@ -27,8 +27,8 @@ Requirements for this hardening milestone. Each maps to a roadmap phase. Ordered
 
 - [ ] **CRASH-01**: Compound keybinding conditions (AND/OR/NOT) evaluate without panicking (`keypress/condition.rs:95,104,108`)
 - [x] **CRASH-02**: Git operations with no open workspace fail gracefully instead of panicking (`dispatch.rs:1343`)
-- [ ] **CRASH-03**: DAP server stdio-capture failure returns an error instead of panicking (`plugin/dap.rs:104,105`)
-- [ ] **CRASH-04**: A malformed zstd plugin archive returns an error instead of panicking (`plugin/mod.rs:1590`)
+- [x] **CRASH-03**: DAP server stdio-capture failure returns an error instead of panicking (`plugin/dap.rs:104,105`)
+- [x] **CRASH-04**: A malformed zstd plugin archive returns an error instead of panicking (`plugin/mod.rs:1590`)
 - [x] **CRASH-05**: Failed git operations surface to the user via RPC instead of being swallowed by `eprintln!` (`dispatch.rs:358,369,377,385`)
 
 ### Security Hardening (depends on RT-03 for download paths)
@@ -98,8 +98,8 @@ Explicitly excluded for this milestone. Documented to prevent scope creep.
 | RT-03 | Phase 3 | Complete |
 | CRASH-01 | Phase 3 | Pending |
 | CRASH-02 | Phase 3 | Complete |
-| CRASH-03 | Phase 3 | Pending |
-| CRASH-04 | Phase 3 | Pending |
+| CRASH-03 | Phase 3 | Complete |
+| CRASH-04 | Phase 3 | Complete |
 | CRASH-05 | Phase 3 | Complete |
 | SEC-01 | Phase 4 | Pending |
 | SEC-02 | Phase 4 | Pending |
