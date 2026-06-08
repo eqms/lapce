@@ -355,8 +355,24 @@ impl ProxyHandler for Dispatcher {
                 if let Some(workspace) = self.workspace.as_ref() {
                     match git_checkout(workspace, &reference) {
                         Ok(()) => (),
-                        Err(e) => eprintln!("{e:?}"),
+                        Err(e) => {
+                            self.core_rpc.show_message(
+                                "Git Checkout failure".to_owned(),
+                                ShowMessageParams {
+                                    typ: MessageType::ERROR,
+                                    message: e.to_string(),
+                                },
+                            );
+                        }
                     }
+                } else {
+                    self.core_rpc.show_message(
+                        "Git operation failed".to_owned(),
+                        ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: "No folder open".to_owned(),
+                        },
+                    );
                 }
             }
             GitDiscardFilesChanges { files } => {
@@ -366,24 +382,72 @@ impl ProxyHandler for Dispatcher {
                         files.iter().map(AsRef::as_ref),
                     ) {
                         Ok(()) => (),
-                        Err(e) => eprintln!("{e:?}"),
+                        Err(e) => {
+                            self.core_rpc.show_message(
+                                "Git Discard Files failure".to_owned(),
+                                ShowMessageParams {
+                                    typ: MessageType::ERROR,
+                                    message: e.to_string(),
+                                },
+                            );
+                        }
                     }
+                } else {
+                    self.core_rpc.show_message(
+                        "Git operation failed".to_owned(),
+                        ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: "No folder open".to_owned(),
+                        },
+                    );
                 }
             }
             GitDiscardWorkspaceChanges {} => {
                 if let Some(workspace) = self.workspace.as_ref() {
                     match git_discard_workspace_changes(workspace) {
                         Ok(()) => (),
-                        Err(e) => eprintln!("{e:?}"),
+                        Err(e) => {
+                            self.core_rpc.show_message(
+                                "Git Discard Workspace failure".to_owned(),
+                                ShowMessageParams {
+                                    typ: MessageType::ERROR,
+                                    message: e.to_string(),
+                                },
+                            );
+                        }
                     }
+                } else {
+                    self.core_rpc.show_message(
+                        "Git operation failed".to_owned(),
+                        ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: "No folder open".to_owned(),
+                        },
+                    );
                 }
             }
             GitInit {} => {
                 if let Some(workspace) = self.workspace.as_ref() {
                     match git_init(workspace) {
                         Ok(()) => (),
-                        Err(e) => eprintln!("{e:?}"),
+                        Err(e) => {
+                            self.core_rpc.show_message(
+                                "Git Init failure".to_owned(),
+                                ShowMessageParams {
+                                    typ: MessageType::ERROR,
+                                    message: e.to_string(),
+                                },
+                            );
+                        }
                     }
+                } else {
+                    self.core_rpc.show_message(
+                        "Git operation failed".to_owned(),
+                        ShowMessageParams {
+                            typ: MessageType::ERROR,
+                            message: "No folder open".to_owned(),
+                        },
+                    );
                 }
             }
             LspCancel { id } => {
@@ -1340,7 +1404,9 @@ impl FileWatchNotifier {
 
         let local_handler = self.workspace_fs_change_handler.clone();
         let core_rpc = self.core_rpc.clone();
-        let workspace = self.workspace.clone().unwrap();
+        let Some(workspace) = self.workspace.clone() else {
+            return;
+        };
         let last_diff = self.last_diff.clone();
         thread::spawn(move || {
             thread::sleep(Duration::from_millis(500));
