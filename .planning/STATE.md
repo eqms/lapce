@@ -112,6 +112,16 @@ None currently.
 
 ---
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260608-oye | Remove build-noise and unused-variable warnings (build.rs informational cargo::warning lines + logging.rs unused `res`) | 2026-06-08 | 2c232094 | [260608-oye-remove-build-noise-and-unused-variable-w](./quick/260608-oye-remove-build-noise-and-unused-variable-w/) |
+
+Last activity: 2026-06-08 - Completed quick task 260608-oye: remove build/run warnings
+
+---
+
 ## Session Continuity
 
 To resume: read `.planning/ROADMAP.md` for phase structure and `.planning/REQUIREMENTS.md` for full requirement detail. Open questions above must be resolved before planning Phase 4.
