@@ -26,10 +26,10 @@ Requirements for this hardening milestone. Each maps to a roadmap phase. Ordered
 ### Crash / Stability (parallel-safe)
 
 - [ ] **CRASH-01**: Compound keybinding conditions (AND/OR/NOT) evaluate without panicking (`keypress/condition.rs:95,104,108`)
-- [ ] **CRASH-02**: Git operations with no open workspace fail gracefully instead of panicking (`dispatch.rs:1343`)
+- [x] **CRASH-02**: Git operations with no open workspace fail gracefully instead of panicking (`dispatch.rs:1343`)
 - [ ] **CRASH-03**: DAP server stdio-capture failure returns an error instead of panicking (`plugin/dap.rs:104,105`)
 - [ ] **CRASH-04**: A malformed zstd plugin archive returns an error instead of panicking (`plugin/mod.rs:1590`)
-- [ ] **CRASH-05**: Failed git operations surface to the user via RPC instead of being swallowed by `eprintln!` (`dispatch.rs:358,369,377,385`)
+- [x] **CRASH-05**: Failed git operations surface to the user via RPC instead of being swallowed by `eprintln!` (`dispatch.rs:358,369,377,385`)
 
 ### Security Hardening (depends on RT-03 for download paths)
 
@@ -49,7 +49,7 @@ Requirements for this hardening milestone. Each maps to a roadmap phase. Ordered
 
 ### Testing (cross-cutting)
 
-- [ ] **TEST-01**: Every crash and security fix ships with a regression test that reproduces the original defect (for `unwrap()`→`?` fixes, the test asserts the error reaches the UI as a notification, not merely that no panic occurs)
+- [x] **TEST-01**: Every crash and security fix ships with a regression test that reproduces the original defect (for `unwrap()`→`?` fixes, the test asserts the error reaches the UI as a notification, not merely that no panic occurs)
 
 ## v2 Requirements
 
@@ -97,10 +97,10 @@ Explicitly excluded for this milestone. Documented to prevent scope creep.
 | RT-02 | Phase 3 | Complete |
 | RT-03 | Phase 3 | Complete |
 | CRASH-01 | Phase 3 | Pending |
-| CRASH-02 | Phase 3 | Pending |
+| CRASH-02 | Phase 3 | Complete |
 | CRASH-03 | Phase 3 | Pending |
 | CRASH-04 | Phase 3 | Pending |
-| CRASH-05 | Phase 3 | Pending |
+| CRASH-05 | Phase 3 | Complete |
 | SEC-01 | Phase 4 | Pending |
 | SEC-02 | Phase 4 | Pending |
 | SEC-03 | Phase 4 | Pending |
