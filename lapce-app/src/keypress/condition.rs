@@ -159,4 +159,26 @@ mod test {
             );
         }
     }
+
+    #[test]
+    fn unknown_condition_evaluates_to_false_not_panic() {
+        let focus = MockFocus {
+            accepted_conditions: &[],
+        };
+        assert!(
+            !KeyPressData::check_condition("totally_unknown_condition_xyz", &focus),
+            "unknown condition token must evaluate to false, not panic"
+        );
+    }
+
+    #[test]
+    fn negated_unknown_condition_evaluates_to_true_not_panic() {
+        let focus = MockFocus {
+            accepted_conditions: &[],
+        };
+        assert!(
+            KeyPressData::check_condition("!totally_unknown_condition_xyz", &focus),
+            "negated unknown condition token must evaluate to true, not panic"
+        );
+    }
 }

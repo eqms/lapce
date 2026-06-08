@@ -1,8 +1,9 @@
 use anyhow::{Result, anyhow};
 use indexmap::IndexMap;
 use lapce_core::mode::Modes;
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 
+use super::condition::Condition;
 use super::keymap::{KeyMap, KeyMapPress};
 
 pub struct KeyMapLoader {
@@ -41,6 +42,21 @@ impl KeyMapLoader {
                     continue;
                 }
             };
+
+            if let Some(ref when) = keymap.when {
+                for token in when
+                    .split(|c: char| c == '|' || c == '&')
+                    .map(|t| t.trim().trim_start_matches('!'))
+                    .filter(|t| !t.is_empty())
+                {
+                    if token.parse::<Condition>().is_err() {
+                        warn!(
+                            "Unparseable condition token {:?} in keymap {:?}",
+                            token, keymap.command
+                        );
+                    }
+                }
+            }
 
             let (command, bind) = match keymap.command.strip_prefix('-') {
                 Some(cmd) => (cmd.to_string(), false),
