@@ -360,6 +360,10 @@ fn download_remote(
                 std::io::copy(&mut gz, &mut out).expect("failed to copy content");
             } else {
                 error!("proxy download failed with: {}", resp.status());
+                return Err(anyhow!(
+                    "proxy download failed with status: {}",
+                    resp.status()
+                ));
             }
 
             match platform {
