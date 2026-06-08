@@ -11,7 +11,7 @@
 
 - [x] **Phase 1: Dependency Foundation** - Upgrade all dependency versions; get workspace building cleanly before any logic touches (completed 2026-06-07)
 - [x] **Phase 2: Async Runtime Introduction** - Stand up tokio runtime in both binaries; no call-site changes yet (completed 2026-06-07)
-- [ ] **Phase 3: Download Pipeline + Crash Fixes** - Migrate all blocking HTTP to async DownloadPipeline; eliminate all panic sites; surface errors to UI
+- [x] **Phase 3: Download Pipeline + Crash Fixes** - Migrate all blocking HTTP to async DownloadPipeline; eliminate all panic sites; surface errors to UI (completed 2026-06-08)
 - [ ] **Phase 4: Integrity Verification + Archive Hardening** - Wire SHA256 verification into all three download paths; path-traversal guards; proxy scheme validation
 - [ ] **Phase 5: Performance Caching + Allocation** - Cache hot-path computations; box oversized enum variants; reduce clone overhead where profiling justifies it
 
@@ -77,7 +77,7 @@ Plans:
   5. A malformed or corrupted zstd plugin archive surfaces an error notification instead of crashing the editor
   6. Each of the five crash/stability fixes ships with a regression test that asserts the error reaches the UI as a notification (not merely that no panic occurs)
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 **Wave 1** *(can execute in parallel)*
 
@@ -87,7 +87,7 @@ Plans:
 **Wave 2** *(blocked on 03-01 completion)*
 
 - [x] 03-03-PLAN.md — CRASH-03 DAP stdio fix + CRASH-04 zstd panic fix + regression tests (CRASH-03, CRASH-04, TEST-01)
-- [ ] 03-04-PLAN.md — CRASH-01 regression tests + D-10 load-time warn for keymap conditions (CRASH-01, TEST-01)
+- [x] 03-04-PLAN.md — CRASH-01 regression tests + D-10 load-time warn for keymap conditions (CRASH-01, TEST-01)
 
 ### Phase 4: Integrity Verification + Archive Hardening
 
@@ -130,7 +130,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
 | 2. Async Runtime Introduction | 2/2 | Complete   | 2026-06-07 |
-| 3. Download Pipeline + Crash Fixes | 3/4 | In Progress|  |
+| 3. Download Pipeline + Crash Fixes | 4/4 | Complete   | 2026-06-08 |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
 | 5. Performance Caching + Allocation | 0/? | Not started | - |
 
