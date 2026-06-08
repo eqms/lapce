@@ -20,8 +20,8 @@ Requirements for this hardening milestone. Each maps to a roadmap phase. Ordered
 ### Async Runtime (performance enabler — blocks integrity pipeline)
 
 - [ ] **RT-01**: A `tokio` multi-thread runtime is constructed at each binary entry (`lapce-app`, `lapce-proxy`) and held alive via an `rt.enter()` guard — no `#[tokio::main]`, no nested runtime
-- [ ] **RT-02**: All network I/O is migrated off `reqwest::blocking`; no blocking download call site remains once the runtime is active
-- [ ] **RT-03**: A shared `DownloadPipeline` component (`lapce-app/src/download.rs`) wraps the async `reqwest::Client`; the three app-side call sites (update, plugin, proxy/remote) use it
+- [x] **RT-02**: All network I/O is migrated off `reqwest::blocking`; no blocking download call site remains once the runtime is active
+- [x] **RT-03**: A shared `DownloadPipeline` component (`lapce-app/src/download.rs`) wraps the async `reqwest::Client`; the three app-side call sites (update, plugin, proxy/remote) use it
 
 ### Crash / Stability (parallel-safe)
 
@@ -94,8 +94,8 @@ Explicitly excluded for this milestone. Documented to prevent scope creep.
 | DEPS-06 | Phase 1 | Pending |
 | DEPS-07 | Phase 1 | Pending |
 | RT-01 | Phase 2 | Pending |
-| RT-02 | Phase 3 | Pending |
-| RT-03 | Phase 3 | Pending |
+| RT-02 | Phase 3 | Complete |
+| RT-03 | Phase 3 | Complete |
 | CRASH-01 | Phase 3 | Pending |
 | CRASH-02 | Phase 3 | Pending |
 | CRASH-03 | Phase 3 | Pending |

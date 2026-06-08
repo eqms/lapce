@@ -77,11 +77,11 @@ Plans:
   5. A malformed or corrupted zstd plugin archive surfaces an error notification instead of crashing the editor
   6. Each of the five crash/stability fixes ships with a regression test that asserts the error reaches the UI as a notification (not merely that no panic occurs)
 
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 **Wave 1** *(can execute in parallel)*
 
-- [ ] 03-01-PLAN.md — Async download pipeline: get_url_async core, DownloadPipeline wrapper, drop blocking feature, migrate all 11 call sites (RT-02, RT-03)
+- [x] 03-01-PLAN.md — Async download pipeline: get_url_async core, DownloadPipeline wrapper, drop blocking feature, migrate all 11 call sites (RT-02, RT-03)
 - [ ] 03-02-PLAN.md — CRASH-02 guard + CRASH-05 git error surfacing in dispatch.rs, regression tests (CRASH-02, CRASH-05, TEST-01)
 
 **Wave 2** *(blocked on 03-01 completion)*
@@ -130,7 +130,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Dependency Foundation | 2/2 | Complete   | 2026-06-07 |
 | 2. Async Runtime Introduction | 2/2 | Complete   | 2026-06-07 |
-| 3. Download Pipeline + Crash Fixes | 0/4 | Not started | - |
+| 3. Download Pipeline + Crash Fixes | 1/4 | In Progress|  |
 | 4. Integrity Verification + Archive Hardening | 0/? | Not started | - |
 | 5. Performance Caching + Allocation | 0/? | Not started | - |
 
