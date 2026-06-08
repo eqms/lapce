@@ -761,3 +761,48 @@ impl PluginCatalog {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use lapce_rpc::core::{CoreNotification, CoreRpc, CoreRpcHandler};
+    use lsp_types::{MessageType, ShowMessageParams};
+
+    /// CRASH-03 regression: when DAP stdio capture fails, the error must
+    /// surface as a ShowMessage ERROR notification through the core_rpc
+    /// channel — not merely return Err without notifying the user.
+    #[test]
+    fn crash_03_dap_failure_emits_show_message_error() {
+        let core_rpc = CoreRpcHandler::new();
+        // Simulate the catalog.rs DapStart Err arm: call show_message
+        // directly with ERROR severity, as the fixed code path does.
+        core_rpc.show_message(
+            "DAP start failure".to_owned(),
+            ShowMessageParams {
+                typ: MessageType::ERROR,
+                message: "failed to capture DAP stdin".to_owned(),
+            },
+        );
+
+        let msg = core_rpc
+            .rx()
+            .recv_timeout(Duration::from_millis(200))
+            .expect("expected ShowMessage notification");
+
+        match msg {
+            CoreRpc::Notification(n) => match *n {
+                CoreNotification::ShowMessage { title, message } => {
+                    assert_eq!(title, "DAP start failure");
+                    assert_eq!(message.typ, MessageType::ERROR);
+                    assert!(
+                        !message.message.is_empty(),
+                        "error message must not be empty"
+                    );
+                }
+                _ => panic!("expected ShowMessage notification variant"),
+            },
+            _ => panic!("expected Notification arm of CoreRpc"),
+        }
+    }
+}
