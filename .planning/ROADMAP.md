@@ -154,8 +154,8 @@ Plans:
 | CRASH-03 | Phase 3 | DAP stdio capture panic |
 | CRASH-04 | Phase 3 | malformed zstd panic |
 | CRASH-05 | Phase 3 | git errors surfaced to UI |
-| SEC-01 | Phase 4 | plugin SHA256 verification |
-| SEC-02 | Phase 4 | self-update SHA256 verification |
+| SEC-01 | Phase 4 → v2 | plugin SHA256 verification — deferred (no trusted hash source upstream; see 04-CONTEXT.md) |
+| SEC-02 | Phase 4 → v2 | self-update SHA256 verification — deferred (no trusted hash source upstream; see 04-CONTEXT.md) |
 | SEC-03 | Phase 4 | proxy binary SHA256 verification |
 | SEC-04 | Phase 4 | path-traversal guard in archive extraction |
 | SEC-05 | Phase 4 | https_proxy scheme validation |
@@ -166,7 +166,7 @@ Plans:
 | PERF-05 | Phase 5 | box oversized enum variants |
 | TEST-01 | Phases 3+4 | regression test per crash/security fix (folded into relevant phases) |
 
-**Total v1 requirements: 26 / 26 mapped. No orphans.**
+**Total v1 requirements: 26 / 26 mapped. No orphans.** (SEC-01, SEC-02 mapped to Phase 4 but deferred to v2 — verified in v2, not Phase 4.)
 
 ---
 *Created: 2026-06-07*

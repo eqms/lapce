@@ -33,11 +33,11 @@ Requirements for this hardening milestone. Each maps to a roadmap phase. Ordered
 
 ### Security Hardening (depends on RT-03 for download paths)
 
-- [ ] **SEC-01**: Plugin downloads are SHA256-verified against a trusted manifest before unpacking (`plugin/mod.rs:1555-1600`); fails closed on mismatch
-- [ ] **SEC-02**: App self-update archives are integrity-verified before applying (`update.rs:55-85`); fails closed
-- [ ] **SEC-03**: The remote proxy binary is integrity-verified before execution (`proxy/remote.rs:341-360`); fails closed
+- [ ] **SEC-01** *(deferred to v2 — no trusted hash source upstream)*: Plugin downloads are SHA256-verified against a trusted manifest before unpacking (`plugin/mod.rs:1555-1600`); fails closed on mismatch
+- [ ] **SEC-02** *(deferred to v2 — no trusted hash source upstream)*: App self-update archives are integrity-verified before applying (`update.rs:55-85`); fails closed
+- [ ] **SEC-03**: The remote proxy binary is integrity-verified before execution on stable releases (build-time pinned hash) (`proxy/remote.rs:341-360`); fails closed
 - [ ] **SEC-04**: Plugin archive extraction rejects path-traversal and symlink-escape entries before writing to disk (`plugin/mod.rs:1592,1596`)
-- [ ] **SEC-05**: `https_proxy` env var is scheme-validated (`http`/`https`) before use (`lapce-proxy/src/lib.rs:193`)
+- [ ] **SEC-05**: `https_proxy` env var is scheme-validated (`http`/`https`/`socks5`/`socks5h`) before use (`lapce-proxy/src/lib.rs:193`)
 
 ### Performance (caching + allocation — parallel-safe with runtime work)
 
@@ -101,8 +101,8 @@ Explicitly excluded for this milestone. Documented to prevent scope creep.
 | CRASH-03 | Phase 3 | Complete |
 | CRASH-04 | Phase 3 | Complete |
 | CRASH-05 | Phase 3 | Complete |
-| SEC-01 | Phase 4 | Pending |
-| SEC-02 | Phase 4 | Pending |
+| SEC-01 | Phase 4 → v2 | Deferred (no trusted hash source upstream) |
+| SEC-02 | Phase 4 → v2 | Deferred (no trusted hash source upstream) |
 | SEC-03 | Phase 4 | Pending |
 | SEC-04 | Phase 4 | Pending |
 | SEC-05 | Phase 4 | Pending |
@@ -117,6 +117,7 @@ Explicitly excluded for this milestone. Documented to prevent scope creep.
 - v1 requirements: 26 total
 - Mapped to phases: 26
 - Unmapped: 0
+- Deferred to v2: 2 (SEC-01, SEC-02 — verified in v2, not Phase 4; no trusted hash source upstream)
 
 ---
 *Requirements defined: 2026-06-07*
