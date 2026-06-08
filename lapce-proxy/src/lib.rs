@@ -12,6 +12,7 @@ use std::{
     process::exit,
     sync::Arc,
     thread,
+    time::Duration,
 };
 
 use anyhow::{Result, anyhow};
@@ -28,6 +29,7 @@ use lapce_rpc::{
     proxy::{ProxyMessage, ProxyNotification, ProxyRpcHandler},
     stdio::stdio_transport,
 };
+use tokio::runtime::Handle;
 use tracing::error;
 
 #[derive(Parser)]
@@ -172,8 +174,7 @@ fn listen_local_socket(proxy_rpc: ProxyRpcHandler) -> Result<()> {
         }
     }
     let name = local_socket.as_os_str().to_fs_name::<GenericFilePath>()?;
-    let listener =
-        ListenerOptions::new().name(name).create_sync()?;
+    let listener = ListenerOptions::new().name(name).create_sync()?;
     for stream in listener.incoming().filter_map(|r| r.ok()) {
         let mut reader = BufReader::new(stream);
         let proxy_rpc = proxy_rpc.clone();
@@ -193,18 +194,17 @@ fn listen_local_socket(proxy_rpc: ProxyRpcHandler) -> Result<()> {
     Ok(())
 }
 
-pub fn get_url<T: reqwest::IntoUrl + Clone>(
+pub async fn get_url_async<T: reqwest::IntoUrl + Clone>(
     url: T,
     user_agent: Option<&str>,
-) -> Result<reqwest::blocking::Response> {
+) -> Result<reqwest::Response> {
     let mut builder = if let Ok(proxy) = std::env::var("https_proxy") {
         let proxy = reqwest::Proxy::all(proxy)?;
-        reqwest::blocking::Client::builder()
+        reqwest::Client::builder()
             .proxy(proxy)
-            .timeout(std::time::Duration::from_secs(10))
+            .timeout(Duration::from_secs(10))
     } else {
-        reqwest::blocking::Client::builder()
-            .timeout(std::time::Duration::from_secs(10))
+        reqwest::Client::builder().timeout(Duration::from_secs(10))
     };
     if let Some(user_agent) = user_agent {
         builder = builder.user_agent(user_agent);
@@ -212,11 +212,18 @@ pub fn get_url<T: reqwest::IntoUrl + Clone>(
     let client = builder.build()?;
     let mut try_time = 0;
     loop {
-        let rs = client.get(url.clone()).send();
+        let rs = client.get(url.clone()).send().await;
         if rs.is_ok() || try_time > 3 {
             return Ok(rs?);
         } else {
             try_time += 1;
         }
     }
+}
+
+pub fn get_url<T: reqwest::IntoUrl + Clone>(
+    url: T,
+    user_agent: Option<&str>,
+) -> Result<reqwest::Response> {
+    Handle::current().block_on(get_url_async(url, user_agent))
 }

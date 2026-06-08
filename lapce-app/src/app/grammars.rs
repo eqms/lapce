@@ -6,6 +6,7 @@ use std::{
 
 use anyhow::{Context, Result, anyhow};
 use lapce_core::directory::Directory;
+use tokio::runtime::Handle;
 
 use crate::{tracing::*, update::ReleaseInfo};
 
@@ -13,10 +14,13 @@ fn get_github_api(url: &str) -> Result<String> {
     let user_agent = format!("Lapce/{}", lapce_core::meta::VERSION);
     let resp = lapce_proxy::get_url(url, Some(user_agent.as_str()))?;
     if !resp.status().is_success() {
-        return Err(anyhow!("get release info failed {}", resp.text()?));
+        return Err(anyhow!(
+            "get release info failed {}",
+            Handle::current().block_on(resp.text())?
+        ));
     }
 
-    Ok(resp.text()?)
+    Handle::current().block_on(resp.text()).map_err(Into::into)
 }
 
 pub fn find_grammar_release() -> Result<ReleaseInfo> {
@@ -110,9 +114,12 @@ fn download_release(
 
     for asset in &release.assets {
         if asset.name.starts_with(file_name) {
-            let mut resp = lapce_proxy::get_url(&asset.browser_download_url, None)?;
+            let resp = lapce_proxy::get_url(&asset.browser_download_url, None)?;
             if !resp.status().is_success() {
-                return Err(anyhow!("download file error {}", resp.text()?));
+                return Err(anyhow!(
+                    "download file error {}",
+                    Handle::current().block_on(resp.text())?
+                ));
             }
 
             let file = tempfile::tempfile()?;
@@ -120,7 +127,8 @@ fn download_release(
             {
                 use std::io::{Seek, Write};
                 let file = &mut &file;
-                resp.copy_to(file)?;
+                let bytes = Handle::current().block_on(resp.bytes())?;
+                std::io::copy(&mut std::io::Cursor::new(bytes), file)?;
                 file.flush()?;
                 file.rewind()?;
             }

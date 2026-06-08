@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Result, anyhow};
 use lapce_core::{directory::Directory, meta};
 use serde::Deserialize;
+use tokio::runtime::Handle;
 
 #[derive(Clone, Deserialize, Debug)]
 pub struct ReleaseInfo {
@@ -32,9 +33,13 @@ pub fn get_latest_release() -> Result<ReleaseInfo> {
 
     let resp = lapce_proxy::get_url(url, Some("Lapce"))?;
     if !resp.status().is_success() {
-        return Err(anyhow!("get release info failed {}", resp.text()?));
+        return Err(anyhow!(
+            "get release info failed {}",
+            Handle::current().block_on(resp.text())?
+        ));
     }
-    let mut release: ReleaseInfo = serde_json::from_str(&resp.text()?)?;
+    let mut release: ReleaseInfo =
+        serde_json::from_str(&Handle::current().block_on(resp.text())?)?;
 
     release.version = match release.tag_name.as_str() {
         "nightly" => format!(
@@ -72,12 +77,16 @@ pub fn download_release(release: &ReleaseInfo) -> Result<PathBuf> {
 
     for asset in &release.assets {
         if asset.name == name {
-            let mut resp = lapce_proxy::get_url(&asset.browser_download_url, None)?;
+            let resp = lapce_proxy::get_url(&asset.browser_download_url, None)?;
             if !resp.status().is_success() {
-                return Err(anyhow!("download file error {}", resp.text()?));
+                return Err(anyhow!(
+                    "download file error {}",
+                    Handle::current().block_on(resp.text())?
+                ));
             }
             let mut out = std::fs::File::create(&file_path)?;
-            resp.copy_to(&mut out)?;
+            let bytes = Handle::current().block_on(resp.bytes())?;
+            std::io::copy(&mut std::io::Cursor::new(bytes), &mut out)?;
             return Ok(file_path);
         }
     }
@@ -267,8 +276,7 @@ mod tests {
 
         // Reset cursor to beginning for extraction.
         buf.set_position(0);
-        let mut archive =
-            ZipArchive::new(buf).expect("parse in-memory zip");
+        let mut archive = ZipArchive::new(buf).expect("parse in-memory zip");
         let result = archive.extract(dir.path());
 
         // zip 2.4.0 must either:

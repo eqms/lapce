@@ -17,6 +17,7 @@ use lapce_rpc::{
     stdio_transport,
 };
 use thiserror::Error;
+use tokio::runtime::Handle;
 use tracing::{debug, error};
 
 const UNIX_PROXY_SCRIPT: &[u8] = include_bytes!("../../../extra/proxy.sh");
@@ -350,11 +351,12 @@ fn download_remote(
                 "https://github.com/lapce/lapce/releases/download/{proxy_version}/{proxy_filename}.gz"
             );
             debug!("proxy download URI: {url}");
-            let mut resp = lapce_proxy::get_url(url, None).expect("request failed");
+            let resp = lapce_proxy::get_url(url, None)?;
             if resp.status().is_success() {
                 let mut out = std::fs::File::create(&local_proxy_file)
                     .expect("failed to create file");
-                let mut gz = GzDecoder::new(&mut resp);
+                let body = Handle::current().block_on(resp.bytes())?;
+                let mut gz = GzDecoder::new(std::io::Cursor::new(body));
                 std::io::copy(&mut gz, &mut out).expect("failed to copy content");
             } else {
                 error!("proxy download failed with: {}", resp.status());

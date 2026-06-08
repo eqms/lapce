@@ -1,11 +1,7 @@
 use lapce_core::directory::Directory;
 use tracing::level_filters::LevelFilter;
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{
-    Registry,
-    filter::Targets,
-    reload::Handle,
-};
+use tracing_subscriber::{Registry, filter::Targets, reload::Handle};
 
 use crate::tracing::*;
 
@@ -60,10 +56,7 @@ pub(super) fn logging() -> (Handle<Targets, Registry>, Option<WorkerGuard>) {
             .init();
     } else {
         registry
-            .with(
-                fmt::Layer::default()
-                    .with_filter(console_filter_targets),
-            )
+            .with(fmt::Layer::default().with_filter(console_filter_targets))
             .init();
     };
 

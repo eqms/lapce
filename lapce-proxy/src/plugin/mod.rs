@@ -75,6 +75,7 @@ use parking_lot::Mutex;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::{Map, Value};
 use tar::Archive;
+use tokio::runtime::Handle;
 use tracing::error;
 
 use self::{
@@ -1564,9 +1565,9 @@ pub fn download_volt(volt: &VoltInfo) -> Result<VoltMetadata> {
     }
 
     // this is the s3 url
-    let url = resp.text()?;
+    let url = Handle::current().block_on(resp.text())?;
 
-    let mut resp = crate::get_url(url, None)?;
+    let resp = crate::get_url(url, None)?;
     if !resp.status().is_success() {
         return Err(anyhow!("can't download plugin"));
     }
@@ -1586,12 +1587,14 @@ pub fn download_volt(volt: &VoltInfo) -> Result<VoltMetadata> {
     }
     fs::create_dir_all(&plugin_dir)?;
 
+    let body = Handle::current().block_on(resp.bytes())?;
+    let mut cursor = std::io::Cursor::new(body);
     if is_zstd {
-        let tar = zstd::Decoder::new(&mut resp).unwrap();
+        let tar = zstd::Decoder::new(&mut cursor).unwrap();
         let mut archive = Archive::new(tar);
         archive.unpack(&plugin_dir)?;
     } else {
-        let tar = GzDecoder::new(&mut resp);
+        let tar = GzDecoder::new(cursor);
         let mut archive = Archive::new(tar);
         archive.unpack(&plugin_dir)?;
     }

@@ -1,9 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::{Error, Result, anyhow};
-use interprocess::local_socket::{
-    GenericFilePath, Stream, ToFsName, prelude::*,
-};
+use interprocess::local_socket::{GenericFilePath, Stream, ToFsName, prelude::*};
 use lapce_core::directory::Directory;
 use lapce_rpc::{
     RpcMessage,

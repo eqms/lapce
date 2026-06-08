@@ -50,6 +50,9 @@ use floem::{
     },
     window::{ResizeDirection, WindowConfig, WindowId},
 };
+use interprocess::local_socket::{
+    GenericFilePath, ListenerOptions, Stream, ToFsName, prelude::*,
+};
 use lapce_core::{
     command::{EditCommand, FocusCommand},
     directory::Directory,
@@ -60,9 +63,6 @@ use lapce_rpc::{
     RpcMessage,
     core::{CoreMessage, CoreNotification},
     file::PathObject,
-};
-use interprocess::local_socket::{
-    GenericFilePath, ListenerOptions, Stream, ToFsName, prelude::*,
 };
 use lsp_types::{CompletionItemKind, MessageType, ShowMessageParams};
 use notify::Watcher;
@@ -4141,8 +4141,7 @@ fn listen_local_socket(tx: SyncSender<CoreNotification>) -> Result<()> {
         }
     }
     let name = local_socket.as_os_str().to_fs_name::<GenericFilePath>()?;
-    let listener =
-        ListenerOptions::new().name(name).create_sync()?;
+    let listener = ListenerOptions::new().name(name).create_sync()?;
 
     for stream in listener.incoming().filter_map(|r| r.ok()) {
         let tx = tx.clone();
@@ -4392,9 +4391,9 @@ mod tests {
         assert_eq!(&reply[..n], b"received", "expected echo 'received'");
 
         // Assert the server received our message.
-        let server_received =
-            rx.recv_timeout(std::time::Duration::from_secs(5))
-                .expect("server received message within timeout");
+        let server_received = rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .expect("server received message within timeout");
         assert_eq!(server_received, b"hello", "server should receive 'hello'");
 
         server.join().expect("server thread did not panic");

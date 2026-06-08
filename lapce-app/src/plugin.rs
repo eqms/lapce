@@ -32,6 +32,7 @@ use lapce_rpc::{
 use lsp_types::MessageType;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use tokio::runtime::Handle;
 
 use crate::{
     command::{CommandExecuted, CommandKind},
@@ -297,7 +298,7 @@ impl PluginData {
             std::thread::spawn(move || {
                 let info: Option<VoltInfo> = lapce_proxy::get_url(url, None)
                     .ok()
-                    .and_then(|r| r.json().ok());
+                    .and_then(|r| Handle::current().block_on(r.json()).ok());
                 send(info);
             });
         }
@@ -434,7 +435,7 @@ impl PluginData {
                 if !resp.status().is_success() {
                     return Err(anyhow::anyhow!("can't download icon"));
                 }
-                let buf = resp.bytes()?.to_vec();
+                let buf = Handle::current().block_on(resp.bytes())?.to_vec();
 
                 if let Some(path) = cache_file_path.as_ref() {
                     if let Err(err) = std::fs::write(path, &buf) {
@@ -462,7 +463,7 @@ impl PluginData {
             let text = parse_markdown("Plugin doesn't have a README", 2.0, config);
             return Ok(text);
         }
-        let text = resp.text()?;
+        let text = Handle::current().block_on(resp.text())?;
         let text = parse_markdown(&text, 2.0, config);
         Ok(text)
     }
@@ -471,7 +472,8 @@ impl PluginData {
         let url = format!(
             "https://plugins.lapce.dev/api/v1/plugins?q={query}&offset={offset}"
         );
-        let plugins: VoltsInfo = lapce_proxy::get_url(url, None)?.json()?;
+        let plugins: VoltsInfo =
+            Handle::current().block_on(lapce_proxy::get_url(url, None)?.json())?;
         Ok(plugins)
     }
 
