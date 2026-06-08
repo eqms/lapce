@@ -17,9 +17,6 @@ fn main() -> Result<()> {
 
     let release_info = get_info()?;
 
-    // Print info to terminal during compilation
-    println!("cargo::warning=Compiling meta: {release_info:?}");
-
     let meta_file = Path::new(&env::var("OUT_DIR")?).join("meta.rs");
 
     let ReleaseInfo { version, branch } = release_info;
@@ -96,7 +93,6 @@ fn get_head() -> Option<String> {
         }
     };
     let commit = reference.target();
-    println!("cargo::warning=Commit found: {commit:?}");
     commit.map(|s| s.to_string().split_at(7).0.to_owned())
 }
 
