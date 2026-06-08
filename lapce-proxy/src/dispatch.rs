@@ -1825,3 +1825,134 @@ fn search_in_path(
 
     Ok(ProxyResponse::GlobalSearchResponse { matches })
 }
+
+#[cfg(test)]
+mod crash_fix_tests {
+    use std::time::Duration;
+
+    use lapce_rpc::{
+        core::{CoreNotification, CoreRpc, CoreRpcHandler},
+        proxy::ProxyRpcHandler,
+    };
+    use lsp_types::MessageType;
+    use notify::EventKind;
+
+    use super::{Dispatcher, FileWatchNotifier};
+    use crate::dispatch::ProxyHandler;
+
+    // ---- CRASH-02 -------------------------------------------------------
+    // handle_workspace_fs_event with workspace=None must not panic and must
+    // not emit any notification (D-06: background handler returns early
+    // silently).
+
+    #[test]
+    fn crash_02_no_panic_and_no_notification_when_workspace_none() {
+        let core_rpc = CoreRpcHandler::new();
+        let proxy_rpc = ProxyRpcHandler::new();
+        // Construct a FileWatchNotifier with workspace=None.
+        let notifier = FileWatchNotifier::new(None, core_rpc.clone(), proxy_rpc);
+
+        // Fire a modify event — the kind that triggers the spawned thread.
+        let event = notify::Event {
+            kind: EventKind::Modify(notify::event::ModifyKind::Data(
+                notify::event::DataChange::Content,
+            )),
+            paths: vec![],
+            attrs: notify::event::EventAttributes::new(),
+        };
+        // Must not panic.
+        notifier.handle_workspace_fs_event(event);
+
+        // No notification should arrive (D-06: no spurious toast from
+        // background handler).
+        let result = core_rpc.rx().recv_timeout(Duration::from_millis(100));
+        assert!(
+            result.is_err(),
+            "expected no notification from background fs-event \
+             handler when workspace is None"
+        );
+    }
+
+    // ---- CRASH-05 (no-workspace path) -----------------------------------
+    // User-triggered git commands with workspace=None must emit a ShowMessage
+    // ERROR notification with "No folder open" (D-07).
+
+    #[test]
+    fn crash_05_git_checkout_no_workspace_emits_show_message() {
+        let core_rpc = CoreRpcHandler::new();
+        let proxy_rpc = ProxyRpcHandler::new();
+        let mut dispatcher = Dispatcher::new(core_rpc.clone(), proxy_rpc);
+
+        // workspace is None by default after Dispatcher::new.
+        dispatcher.handle_notification(
+            lapce_rpc::proxy::ProxyNotification::GitCheckout {
+                reference: "main".to_owned(),
+            },
+        );
+
+        let msg = core_rpc
+            .rx()
+            .recv_timeout(Duration::from_millis(200))
+            .expect("GitCheckout with no workspace should emit ShowMessage");
+        let CoreRpc::Notification(n) = msg else {
+            panic!("expected notification, got request/shutdown");
+        };
+        let CoreNotification::ShowMessage { message, .. } = *n else {
+            panic!("expected ShowMessage, got {:?}", n);
+        };
+        assert_eq!(
+            message.typ,
+            MessageType::ERROR,
+            "ShowMessage type must be ERROR"
+        );
+        assert!(
+            message.message.contains("No folder open"),
+            "message must contain 'No folder open', got: {}",
+            message.message
+        );
+    }
+
+    // ---- CRASH-05 (git error path) --------------------------------------
+    // User-triggered git commands with a non-git workspace must emit a
+    // ShowMessage ERROR notification containing the git error (D-08).
+
+    #[test]
+    fn crash_05_git_init_error_emits_show_message() {
+        let core_rpc = CoreRpcHandler::new();
+        let proxy_rpc = ProxyRpcHandler::new();
+        let mut dispatcher = Dispatcher::new(core_rpc.clone(), proxy_rpc);
+
+        // Point to a path that already exists but is not writable as a new
+        // git repo root (use a file path so git_init returns an error).
+        // Use a path that cannot be a valid git repo root.
+        // On Unix, a path inside /dev/null hierarchy is reliable.
+        // On non-Unix, use a nested temp path that doesn't exist.
+        #[cfg(unix)]
+        let bad_path = std::path::PathBuf::from("/dev/null/no-such-path");
+        #[cfg(not(unix))]
+        let bad_path = std::env::temp_dir()
+            .join("lapce-crash-05-test-nonexistent-git-dir")
+            .join("nested-nonexistent");
+
+        dispatcher.workspace = Some(bad_path);
+
+        dispatcher
+            .handle_notification(lapce_rpc::proxy::ProxyNotification::GitInit {});
+
+        let msg = core_rpc
+            .rx()
+            .recv_timeout(Duration::from_millis(500))
+            .expect("GitInit failure should emit ShowMessage");
+        let CoreRpc::Notification(n) = msg else {
+            panic!("expected notification, got request/shutdown");
+        };
+        let CoreNotification::ShowMessage { message, .. } = *n else {
+            panic!("expected ShowMessage, got {:?}", n);
+        };
+        assert_eq!(
+            message.typ,
+            MessageType::ERROR,
+            "ShowMessage type must be ERROR"
+        );
+    }
+}
