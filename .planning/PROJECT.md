@@ -41,16 +41,22 @@ The editor must never panic on normal user actions, and every binary it download
 - ✓ Regression test `handle_current_succeeds_inside_entered_context` (`lapce-app/src/runtime_tests.rs`); editor launch + behaviour parity confirmed by maintainer smoke test
 - ⓘ Follow-up (non-blocking): the regression test validates the tokio contract but does not structurally guard the binary's `rt.enter()` — code review WR-01 suggests a `debug_assert!(Handle::try_current().is_ok())` in `app::launch()` for a true entry-point guard
 
+**Download Pipeline + Crash Fixes** — Validated in Phase 3: Download Pipeline + Crash Fixes (2026-06-08)
+- ✓ All 11 `reqwest::blocking` call sites migrated onto the Phase-2 tokio runtime via an async `get_url_async` core + sync `get_url` shim (`Handle::current().block_on`); `blocking` Cargo feature dropped in the same atomic commit — `grep -rn "reqwest::blocking"` returns zero workspace-wide (RT-02)
+- ✓ `DownloadPipeline` wrapper added in `lapce-app/src/download.rs`, delegating to the shared proxy-side core (RT-03)
+- ✓ Compound keybinding conditions evaluate without panicking — regression tests lock unknown→false / !unknown→true; load-time `tracing::warn!` for unparseable `when` tokens (CRASH-01)
+- ✓ Git operations with no open workspace no longer panic — `let-else` guard in the background fs-event handler (CRASH-02)
+- ✓ DAP stdio-capture failure returns an error surfaced via `ShowMessage` instead of panicking (CRASH-03)
+- ✓ Malformed zstd plugin archive returns an error surfaced to the UI instead of panicking (CRASH-04)
+- ✓ Failed git operations surface via `ShowMessage` ERROR instead of `eprintln!` swallowing; user-triggered git arms also emit "No folder open" when no workspace is open (CRASH-05)
+- ✓ Each of the five crash fixes ships a regression test asserting the error reaches the UI as a notification, via the `CoreRpcHandler::new()` + `rx().recv_timeout()` zero-mock seam (TEST-01)
+- ✓ Fail-closed gap fixed mid-verification: SSH remote proxy download now returns `Err` on a non-2xx response instead of continuing with an unwritten binary (`proxy/remote.rs:361-367`)
+- ⏳ SSH remote proxy bootstrap fail-closed behaviour pending human verification — tracked in `03-HUMAN-UAT.md`
+- ⓘ Follow-up (non-blocking, before Phase 4): CR-02 `get_url` shim should move to `tokio::task::block_in_place`; CR-01/CR-04 `target_commitish[..7]` slice panics (`update.rs`, `grammars.rs`) and `.expect()` calls in `remote.rs` are out-of-scope tech debt
+
 ### Active
 
 <!-- This milestone: resolve the four engineering-quality concern clusters. Hypotheses until shipped. -->
-
-**Crash / Stability**
-- [ ] Compound keybinding conditions (AND/OR/NOT) evaluate without panicking (`keypress/condition.rs:95,104,108`)
-- [ ] Git operations with no open workspace fail gracefully instead of panicking (`dispatch.rs:1343`)
-- [ ] DAP server stdio capture failure returns an error instead of panicking (`plugin/dap.rs:104,105`)
-- [ ] Malformed zstd plugin archive returns an error instead of panicking (`plugin/mod.rs:1590`)
-- [ ] Failed git operations surface to the user instead of being swallowed by `eprintln!` (`dispatch.rs:358,369,377,385`)
 
 **Security Hardening**
 - [ ] Plugin downloads verified against a published SHA256 before unpacking (`plugin/mod.rs:1555-1600`)
@@ -60,7 +66,6 @@ The editor must never panic on normal user actions, and every binary it download
 - [ ] `https_proxy` env var validated (scheme check) before use (`lapce-proxy/src/lib.rs:193`)
 
 **Performance**
-- [ ] Network I/O (plugin/update/proxy download) runs on an async runtime instead of `reqwest::blocking` (`lapce-proxy/src/lib.rs`, `plugin.rs`, `update.rs`, `proxy/remote.rs`)
 - [ ] Compiled glob matcher cached for directory listings (`file_explorer/data.rs:207`)
 - [ ] Parsed font families cached, invalidated only on config change (`doc.rs:1951`)
 - [ ] Granular per-line cache invalidation for completion/diagnostic updates (`doc.rs:1139,1146,1430`)
@@ -122,4 +127,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-07 after Phase 2 (Async Runtime Introduction) completion*
+*Last updated: 2026-06-08 after Phase 3 (Download Pipeline + Crash Fixes) completion*
